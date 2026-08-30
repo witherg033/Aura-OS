@@ -146,3 +146,7 @@ kde-cli-tools
 wayland
 xorg-server
 mesa
+zram-generator
+fastfetch
+calamares
+firefox
