@@ -1,97 +1,27 @@
-name: Build AuraOS ISO
+name: Build Aura OS ISO
 
 on:
   push:
-    branches: [ main ]
-    paths:
-      - "airootfs/**"
-      - "packages.x86_64"
-      - "profiledef.sh"
-      - ".github/workflows/build.yml"
-  workflow_dispatch: {}
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  build-iso:
-    name: Build AuraOS ISO (x86_64)
+  build:
     runs-on: ubuntu-latest
-    container:
-      image: archlinux:latest
-      options: --privileged
-
     steps:
-      - name: Update system & install build tools
-        run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed \
-            archiso \
-            git \
-            base-devel \
-            reflector \
-            dosfstools \
-            squashfs-tools \
-            libisoburn
-
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Sanity-check required files exist
+      - name: Build Archiso in Docker
         run: |
-          test -f airootfs/usr/local/bin/aura-welcome.py || { echo "::error::aura-welcome.py not found"; exit 1; }
-          mkdir -p airootfs/etc/skel/.config/autostart
-          if [ ! -f airootfs/etc/skel/.config/autostart/aura-welcome.desktop ]; then
-            echo "::warning::autostart .desktop entry missing, generating a default one"
-            cat > airootfs/etc/skel/.config/autostart/aura-welcome.desktop <<'EOF'
-          [Desktop Entry]
-          Type=Application
-          Name=Aura Welcome
-          Exec=python3 /usr/local/bin/aura-welcome.py
-          Icon=system-software-install
-          Terminal=false
-          X-GNOME-Autostart-enabled=true
-          EOF
-          fi
-          chmod +x airootfs/usr/local/bin/aura-welcome.py
+          docker run --rm --privileged -v ${{ github.workspace }}:/workspace -w /workspace archlinux:latest bash -c "
+            pacman -Syu --noconfirm archiso
+            mkarchiso -v -o /workspace/out /workspace
+          "
 
-      - name: Ensure required pacman packages are declared
-        run: |
-          touch packages.x86_64
-          for pkg in \
-            python \
-            python-pip \
-            tk \
-            ttf-dejavu \
-            noto-fonts \
-            noto-fonts-cjk \
-            noto-fonts-emoji \
-            discover \
-            xdg-utils; do
-            grep -qxF "$pkg" packages.x86_64 || echo "$pkg" >> packages.x86_64
-          done
-
-      - name: Inject post-install hook for Python (pip) dependencies
-        run: |
-          mkdir -p airootfs/root/customize_airootfs.d
-          cat > airootfs/root/customize_airootfs.sh <<'EOF'
-          #!/usr/bin/env bash
-          set -e
-          # Install the PyPI libraries aura-welcome.py needs that aren't
-          # available as official Arch packages.
-          pip install --break-system-packages --no-cache-dir \
-            customtkinter \
-            arabic_reshaper \
-            python-bidi
-          chmod +x /usr/local/bin/aura-welcome.py
-          EOF
-          chmod +x airootfs/root/customize_airootfs.sh
-
-      - name: Build ISO with mkarchiso
-        run: |
-          mkdir -p work out
-          mkarchiso -v -w work/ -o out/ .
-
-      - name: Upload ISO artifact
+      - name: Upload ISO Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AuraOS-x86_64-iso
+          name: Aura-OS-ISO
           path: out/*.iso
-          if-no-files-found: error
