@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install Aura OS
+Comment=Install Aura OS to your hard drive
+Exec=sudo -E calamares
+Icon=system-software-install
+Terminal=false
+Categories=System;
