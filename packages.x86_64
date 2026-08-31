@@ -148,7 +148,6 @@ xorg-server
 mesa
 zram-generator
 fastfetch
-
 firefox
 chaotic-keyring
 chaotic-mirrorlist
