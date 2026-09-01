@@ -24,4 +24,11 @@ plugin=org.kde.plasma.digitalclock
 [Containments][1][General]
 appletOrder=2;3;4;5
 floating=true
+[Applets][Kickoff]
+plugin=org.kde.plasma.kickoff
 
+[Applets][Kickoff][Configuration][General]
+icon=/usr/share/pixmaps/aura-logo.png
+
+[Wallpaper][org.kde.image][General]
+Image=file:///usr/share/wallpapers/aura-wallpaper.jpg
