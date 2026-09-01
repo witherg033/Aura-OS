@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install Aura OS
+Comment=Guided Installer for Aura OS
+Exec=konsole -e archinstall
+Icon=system-software-install
+Terminal=false
+Categories=System;
