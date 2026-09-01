@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Aura OS Welcome Setup
+Exec=/home/liveuser/welcome.sh
+Icon=preferences-desktop-locale
+Terminal=false
+Categories=System;
